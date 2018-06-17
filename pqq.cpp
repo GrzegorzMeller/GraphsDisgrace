@@ -1,13 +1,13 @@
 // Disgrace.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
+//#include "stdafx.h"
 #include <iostream>
 #include <string>
 
 
 
-int getMatrixElem(const int M[], const int& size, const int& x, const int& y) {
+char getMatrixElem(const char* M, const int& size, const int& x, const int& y) {
 	return M[size*x + y];
 }
 
@@ -24,10 +24,11 @@ void V_cartesian(const char S0[], const char S1[], int graphs_sizes[], char** CA
 }
 
 
-int connected(const int G[], const int& size, const int& i, const int& j) {
-	auto value = getMatrixElem(G, size, (int)i - 48, (int)j - 48);
-	if (value == 0)
-		value = 9;
+char connected(const char* G, const int& size, const int& i, const int& j) {
+	char value = getMatrixElem(G, size, (int)i - 48, (int)j - 48);
+	//auto value = getMatrixElem(G, size, i, j);
+	if (value == '0')
+		value = '9';
 	return value;
 }
 
@@ -49,44 +50,42 @@ bool isInB(char a, char b, const int set_size, char **B) {
 	return false;
 }
 
-int fill_disgrace(const int G0[], const int G1[], const int set_size, int graphs_sizes[], int DIS[], char** CART, char** B) {
+int fill_disgrace(const char* G0, const char* G1, const int set_size, int graphs_sizes[], int DIS[], char** CART, char** B) {
 	auto i = 0;
 	auto adj = 0;
 	for (auto l = 0; l < graphs_sizes[0] * graphs_sizes[1]; ++l) {
 		for (auto k = 0; k < graphs_sizes[0] * graphs_sizes[1]; ++k) {
-			int dis_0;
-			int dis_1;
+			//std::cout << i << ": comparing index: " << l << " with " << k << "; values: " << CART[l][0] << CART[l][1] << " with " << CART[k][0] << CART[k][1];
+			//std::cout << " compare equal, connected: ";
+			char dis_0;
+			char dis_1;
 			if (CART[l][0] == CART[k][0]) {
-				//DIS_DEBUG[i][0] = 0;
-				dis_0 = 0;
+				dis_0 = '0';
+				//std::cout << "T-, ";
 			}
 			else {
 				auto con = connected(G0, graphs_sizes[0], CART[l][0], CART[k][0]);
-				//DIS_DEBUG[i][0] = con;
 				dis_0 = con;
+				//std::cout << "F" << con << ", ";
 			}
 			if (CART[l][1] == CART[k][1]) {
-				//DIS_DEBUG[i][1] = 0;
-				dis_1 = 0;
+				dis_1 = '0';
+				//std::cout << "T-";
 			}
 			else {
 				auto con = connected(G1, graphs_sizes[1], CART[l][1], CART[k][1]);
-				//DIS_DEBUG[i][1] = con;
 				dis_1 = con;
+				//std::cout << "F" << con;
 			}
-			//char a = DIS_DEBUG[i][0] + 48;
-			//char b = DIS_DEBUG[i][1] + 48;
-			char a = dis_0 + 48;
-			char b = dis_1 + 48;
-			char adjacent_string[2];
-			//adjacent_string[0]= a;
-			//adjacent_string[1] = b;
-			if (isInB(a, b, set_size, B)) {
+			//std::cout << "| " << dis_0 << dis_1;
+			if (isInB(dis_0, dis_1, set_size, B)) {
 				DIS[i] = 1;
+				//std::cout << "| 1\n";
 				adj++;
 			}
 			else {
 				DIS[i] = 0;
+				//std::cout << "| 0\n";
 			}
 			++i;
 		}
@@ -121,15 +120,13 @@ int max_degree(int DIS[], int size) {
 
 int main()
 {
-
-
 	int N;
 	std::cin >> N;
+	char** B;
+	char** CART;
+	int r;
 	for (int q = 0; q < N; ++q) {
-		char** B;
-		char** CART;
-		//int** DIS_DEBUG;
-		int r;
+		
 		std::cin >> r;
 		int* graphs_sizes = new int[r];
 		for (int m = 0; m < r; ++m) {
@@ -151,18 +148,20 @@ int main()
 				B[m][n] = pom;
 			}
 		}
-		int* G0 = new int[graphs_sizes[0] * graphs_sizes[0]];
-		for (int n = 0; n < graphs_sizes[0] * graphs_sizes[0]; n++) {
+		char* G0 = new char[graphs_sizes[0] * graphs_sizes[0]];
+		std::cin >> G0;
+		/*for (int n = 0; n < graphs_sizes[0] * graphs_sizes[0]; n++) {
 			char a;
 			std::cin >> a;
 			G0[n] = a - 48;
-		}
-		int* G1 = new int[graphs_sizes[1] * graphs_sizes[1]];
-		for (int n = 0; n < graphs_sizes[1] * graphs_sizes[1]; n++) {
+		}*/
+		char* G1 = new char[graphs_sizes[1] * graphs_sizes[1]];
+		std::cin >> G1;
+		/*for (int n = 0; n < graphs_sizes[1] * graphs_sizes[1]; n++) {
 			char a;
 			std::cin >> a;
 			G1[n] = a - 48;
-		}
+		}*/
 		char* S0 = new char[graphs_sizes[0]];
 		for (int m = 0; m < graphs_sizes[0]; ++m) {
 			S0[m] = m + 48;
@@ -179,22 +178,13 @@ int main()
 		for (int m = 0; m < graphs_sizes[0] * graphs_sizes[1]; ++m)
 			CART[m] = new char[graphs_sizes[0] * graphs_sizes[1]];
 
-		/*DIS_DEBUG = new int*[(graphs_sizes[0] * graphs_sizes[1])*(graphs_sizes[0] * graphs_sizes[1])];
-		for (int m = 0; m < ((graphs_sizes[0] * graphs_sizes[1])*(graphs_sizes[0] * graphs_sizes[1])); ++m)
-			DIS_DEBUG[m] = new int[graphs_sizes[1]];*/
 
 		V_cartesian(S0, S1, graphs_sizes, CART);
 		auto adj = fill_disgrace(G0, G1, set_size, graphs_sizes, DIS, CART, B);
 		std::cout << adj << " ";
 		auto max = max_degree(DIS, graphs_sizes[0] * graphs_sizes[1]);
 
-
-
-		//for (int m = 0; m < ((graphs_sizes[0] * graphs_sizes[1])*(graphs_sizes[0] * graphs_sizes[1])); ++m) {
-		//	//std::cout << DIS_DEBUG[m];
-		//	delete[] DIS_DEBUG[m];
-		//}
-		for (int m = 0; m < graphs_sizes[0] * graphs_sizes[1]; ++m) {
+		/*for (int m = 0; m < graphs_sizes[0] * graphs_sizes[1]; ++m) {
 			delete[] CART[m];
 		}
 		delete[] CART;
@@ -204,11 +194,10 @@ int main()
 		delete[] B;
 		delete[] graphs_sizes;
 		delete[] DIS;
-		//delete[] DIS_DEBUG;
 		delete[] G0;
 		delete[] G1;
 		delete[] S0;
-		delete[] S1;
+		delete[] S1;*/
 	}
 
 	return 0;
